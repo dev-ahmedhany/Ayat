@@ -151,9 +151,9 @@
 
                         let key = element.dataset.src;
 
-                        let item1 = await db.transaction(storeName).objectStore(storeName).get(key);
+                        let item = await db.transaction(storeName).objectStore(storeName).get(key);
 
-                        if (item1) {
+                        if (item) {
                             console.log("read");
                         }
                         else {
