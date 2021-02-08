@@ -155,6 +155,7 @@
 
                         if (item) {
                             console.log("read");
+                            element.setAttribute('src', URL.createObjectURL(item));
                         }
                         else {
                             // Create XHR
@@ -179,17 +180,13 @@
                                     await tx.done;
                                     console.log("written");
                                     item = await db.transaction(storeName).objectStore(storeName).get(key);
+                                    element.setAttribute('src', URL.createObjectURL(item));
                                 }
                             }, false);
                             // Send XHR
                             xhr.send();
 
                         }
-                        console.log(item);
-
-
-                        element.setAttribute('src', URL.createObjectURL(item));
-
 
                         element.removeAttribute('data-src');
                     }
