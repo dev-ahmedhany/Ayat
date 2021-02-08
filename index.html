@@ -154,7 +154,6 @@
                         let item = await db.transaction(storeName).objectStore(storeName).get(key);
 
                         if (item) {
-                            console.log("read");
                             element.setAttribute('src', URL.createObjectURL(item));
                         }
                         else {
@@ -167,7 +166,6 @@
 
                             xhr.addEventListener("load", async () => {
                                 if (xhr.status === 200) {
-                                    console.log("Image retrieved");
 
                                     // File as response
                                     blob = xhr.response;
@@ -179,8 +177,11 @@
                                     const value = await store.put(blob, key)
                                     await tx.done;
                                     console.log("written");
+                                    console.log(blob);
+                                    console.log(value);
                                     item = await db.transaction(storeName).objectStore(storeName).get(key);
                                     element.setAttribute('src', URL.createObjectURL(item));
+                                    console.log(item);
                                 }
                             }, false);
                             // Send XHR
