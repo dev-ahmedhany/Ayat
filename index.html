@@ -149,9 +149,9 @@
                 event.relatedTarget.querySelectorAll('div > img').forEach(async (element) => {
                     if (element.dataset.src) {
 
-                        let key = element.dataset.src;
+                        const key = element.dataset.src;
 
-                        let item = await db.transaction(storeName).objectStore(storeName).get(key);
+                        const item = await db.transaction(storeName).objectStore(storeName).get(key);
 
                         if (item) {
                             element.setAttribute('src', URL.createObjectURL(item));
@@ -169,6 +169,7 @@
 
                                     // File as response
                                     blob = xhr.response;
+                                    element.setAttribute('src', URL.createObjectURL(blob));
 
                                     // Put the received blob into IndexedDB
                                     const tx = db.transaction(storeName, 'readwrite')
@@ -176,12 +177,6 @@
 
                                     const value = await store.put(blob, key)
                                     await tx.done;
-                                    console.log("written");
-                                    console.log(blob);
-                                    console.log(value);
-                                    item = await db.transaction(storeName).objectStore(storeName).get(key);
-                                    element.setAttribute('src', URL.createObjectURL(item));
-                                    console.log(item);
                                 }
                             }, false);
                             // Send XHR
