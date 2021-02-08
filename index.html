@@ -6,14 +6,52 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
 </head>
 
 <body>
-    <img src="hafs/2.png">
-    <img src="hafs/1.png">
-    <button onclick="fullscreen(document.documentElement);">toggle Fullscreen</button>
-
+    <div id="myCarousel" class="carousel slide lazy-load" data-bs-interval="false" data-bs-ride="carousel">
+        <div class="carousel-inner">
+            <div class="carousel-item active">
+                <img src="hafs/2.png" alt="2">
+                <img src="hafs/1.png" alt="1">
+            </div>
+            <div class="carousel-item">
+                <img src="hafs/frame.jpg" data-src="hafs/4.png" alt="4">
+                <img src="hafs/frame.jpg" data-src="hafs/3.png" alt="3">
+            </div>
+            <div class="carousel-item">
+                <img src="hafs/frame.jpg" data-src="hafs/6.png" alt="6">
+                <img src="hafs/frame.jpg" data-src="hafs/5.png" alt="5">
+            </div>
+        </div>
+        <a class="carousel-control-prev" href="#myCarousel" role="button" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+        </a>
+        <a class="carousel-control-next" href="#myCarousel" role="button" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+        </a>
+    </div>
+    <button class="btn-primary btn" onclick="fullscreen(document.documentElement);">toggle Fullscreen</button>
     <script>
+        var myCarousel = document.getElementById('myCarousel')
+
+        myCarousel.addEventListener('slid.bs.carousel', function () {
+
+            document.querySelectorAll('.carousel-item.active > img').forEach(element => {
+                if (element.dataset.src) {
+                    element.setAttribute('src', element.dataset.src);
+                    element.removeAttribute('data-src');
+                }
+            });
+
+        });
+    </script>
+    <script>
+
         function fullscreen(elem) {
             // ## The below if statement seems to work better ## if ((document.fullScreenElement && document.fullScreenElement !== null) || (document.msfullscreenElement && document.msfullscreenElement !== null) || (!document.mozFullScreen && !document.webkitIsFullScreen)) {
             if ((document.fullScreenElement !== undefined && document.fullScreenElement === null) || (document.msFullscreenElement !== undefined && document.msFullscreenElement === null) || (document.mozFullScreen !== undefined && !document.mozFullScreen) || (document.webkitIsFullScreen !== undefined && !document.webkitIsFullScreen)) {
@@ -39,6 +77,9 @@
             }
         }
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW"
+        crossorigin="anonymous"></script>
 </body>
 
 </html>
