@@ -91,8 +91,17 @@
                 }
             });
         }
-        document.getElementById('myCarousel').addEventListener('slide.bs.carousel', lazyload);
-
+        const myCarousel = document.getElementById('myCarousel');
+        myCarousel.addEventListener('slide.bs.carousel', lazyload);
+        const carousel = new bootstrap.Carousel(myCarousel, { interval: 0 })
+        document.addEventListener('keyup', function (e) {
+            if (e.which == 39) {
+                carousel.next();
+            }
+            else if (e.which == 37) {
+                carousel.prev();
+            }
+        });
         //view size
         document.getElementById("flexSwitchCheckDefault").addEventListener("change", () => {
             let newClass = document.querySelector('.img-page').className == "img-page img-100vh" ?
@@ -122,75 +131,79 @@
         });
     </script>
     <script type="module">
-        import { openDB } from 'https://unpkg.com/idb?module'
+        import { openDB } from 'https://unpkg.com/idb?module';
 
-        (async () => {
-            'use strict'
+        if (window.location.protocol == "https:") {
+            (async () => {
+                'use strict'
 
-            if (!('indexedDB' in window)) {
-                console.warn('IndexedDB not supported')
-                return
-            }
-
-            //...IndexedDB code
-            const dbName = 'ayat'
-            const storeName = 'pages'
-            const version = 1 //versions start at 1
-
-            const db = await openDB(dbName, version, {
-                upgrade(db, oldVersion, newVersion, transaction) {
-                    db.createObjectStore(storeName)
+                if (!('indexedDB' in window)) {
+                    console.warn('IndexedDB not supported')
+                    return
                 }
-            });
 
+                //...IndexedDB code
+                const dbName = 'ayat'
+                const storeName = 'pages'
+                const version = 1 //versions start at 1
 
-            //lazy load
-            let lazyloadandsave = async (event) => {
-                event.relatedTarget.querySelectorAll('div > img').forEach(async (element) => {
-                    if (element.dataset.src) {
-
-                        const key = element.dataset.src;
-
-                        const item = await db.transaction(storeName).objectStore(storeName).get(key);
-
-                        if (item) {
-                            element.setAttribute('src', URL.createObjectURL(item));
-                        }
-                        else {
-                            // Create XHR
-                            let xhr = new XMLHttpRequest(), blob;
-
-                            xhr.open("GET", key, true);
-                            // Set the responseType to blob
-                            xhr.responseType = "blob";
-
-                            xhr.addEventListener("load", async () => {
-                                if (xhr.status === 200) {
-
-                                    // File as response
-                                    blob = xhr.response;
-                                    element.setAttribute('src', URL.createObjectURL(blob));
-
-                                    // Put the received blob into IndexedDB
-                                    const tx = db.transaction(storeName, 'readwrite')
-                                    const store = await tx.objectStore(storeName)
-
-                                    const value = await store.put(blob, key)
-                                    await tx.done;
-                                }
-                            }, false);
-                            // Send XHR
-                            xhr.send();
-
-                        }
-
-                        element.removeAttribute('data-src');
+                const db = await openDB(dbName, version, {
+                    upgrade(db, oldVersion, newVersion, transaction) {
+                        db.createObjectStore(storeName)
                     }
                 });
-            }
-            document.getElementById('myCarousel').removeEventListener('slide.bs.carousel', lazyload);
-            document.getElementById('myCarousel').addEventListener('slide.bs.carousel', lazyloadandsave);
-        })();
+
+
+                //lazy load
+                let lazyloadandsave = async (event) => {
+                    event.relatedTarget.querySelectorAll('div > img').forEach(async (element) => {
+                        if (element.dataset.src) {
+
+                            const key = element.dataset.src;
+
+                            const item = await db.transaction(storeName).objectStore(storeName).get(key);
+
+                            if (item) {
+                                element.setAttribute('src', URL.createObjectURL(item));
+                            }
+                            else {
+                                // Create XHR
+                                let xhr = new XMLHttpRequest(), blob;
+
+                                xhr.open("GET", key, true);
+                                // Set the responseType to blob
+                                xhr.responseType = "blob";
+
+                                xhr.addEventListener("load", async () => {
+                                    if (xhr.status === 200) {
+
+                                        // File as response
+                                        blob = xhr.response;
+                                        element.setAttribute('src', URL.createObjectURL(blob));
+
+                                        // Put the received blob into IndexedDB
+                                        const tx = db.transaction(storeName, 'readwrite')
+                                        const store = await tx.objectStore(storeName)
+
+                                        const value = await store.put(blob, key)
+                                        await tx.done;
+                                    }
+                                }, false);
+                                // Send XHR
+                                xhr.send();
+
+                            }
+
+                            element.removeAttribute('data-src');
+                        }
+                    });
+                }
+                document.getElementById('myCarousel').removeEventListener('slide.bs.carousel', lazyload);
+                document.getElementById('myCarousel').addEventListener('slide.bs.carousel', lazyloadandsave);
+            })();
+
+        }
+
     </script>
 </body>
 
