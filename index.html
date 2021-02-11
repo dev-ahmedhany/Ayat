@@ -6,15 +6,15 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
     <style>
-        .img-100vh {
+        .img100vh {
             max-height: 100vh;
         }
 
-        .img-max {
-            max-height: unset;
+        .img-page {
+            max-width: 50vw;
         }
     </style>
 </head>
@@ -49,11 +49,9 @@
                 </div>
             </div>
             <button class="carousel-control-prev" type="button" data-bs-target="#myCarousel" data-bs-slide="prev">
-                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
                 <span class="visually-hidden">Previous</span>
             </button>
             <button class="carousel-control-next" type="button" data-bs-target="#myCarousel" data-bs-slide="next">
-                <span class="carousel-control-next-icon" aria-hidden="true"></span>
                 <span class="visually-hidden">Next</span>
             </button>
         </div>
@@ -104,10 +102,8 @@
         });
         //view size
         document.getElementById("flexSwitchCheckDefault").addEventListener("change", () => {
-            let newClass = document.querySelector('.img-page').className == "img-page img-100vh" ?
-                "img-page img-max" : "img-page img-100vh";
             document.querySelectorAll('.img-page').forEach(element => {
-                element.className = newClass;
+                element.classList.toggle("img100vh");
             });
 
         })
