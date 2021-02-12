@@ -177,7 +177,7 @@
                                 const key = element.dataset.src;
 
                                 const item = await db.transaction(storeName).objectStore(storeName).get(key);
-
+                                console.log(item);
                                 if (item) {
                                     element.setAttribute('src', URL.createObjectURL(item));
                                 }
