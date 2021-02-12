@@ -177,39 +177,45 @@
                                 const key = element.dataset.src;
 
                                 const request = db.transaction(storeName).objectStore(storeName).get(key);
-                                request.onerror = function (event) {
+                                request.onerror = function (error) {
                                     // Handle errors!
-                                    console.error(event);
-                                    // Create XHR
-                                    let xhr = new XMLHttpRequest(), blob;
-
-                                    xhr.open("GET", key, true);
-                                    // Set the responseType to blob
-                                    xhr.responseType = "blob";
-
-                                    xhr.addEventListener("load", async () => {
-                                        if (xhr.status === 200) {
-
-                                            // File as response
-                                            blob = xhr.response;
-                                            element.setAttribute('src', URL.createObjectURL(blob));
-
-                                            // Put the received blob into IndexedDB
-                                            const tx = db.transaction(storeName, 'readwrite')
-                                            const store = await tx.objectStore(storeName)
-
-                                            const value = await store.put(blob, key)
-                                            await tx.done;
-                                        }
-                                    }, false);
-                                    // Send XHR
-                                    xhr.send();
-                                    element.removeAttribute('data-src');
+                                    console.error(error);
+                                    document.getElementById('myCarousel').removeEventListener('slide.bs.carousel', lazyloadandsave);
+                                    document.getElementById('myCarousel').addEventListener('slide.bs.carousel', lazyload);
+                                    lazyload(event);
                                 };
                                 request.onsuccess = function (event) {
-                                    console.log(event);
                                     // Do something with the request.result!
-                                    element.setAttribute('src', URL.createObjectURL(request.result));
+                                    if (request.result) {
+                                        element.setAttribute('src', URL.createObjectURL(request.result));
+
+                                    }
+                                    else {
+                                        // Create XHR
+                                        let xhr = new XMLHttpRequest(), blob;
+
+                                        xhr.open("GET", key, true);
+                                        // Set the responseType to blob
+                                        xhr.responseType = "blob";
+
+                                        xhr.addEventListener("load", async () => {
+                                            if (xhr.status === 200) {
+
+                                                // File as response
+                                                blob = xhr.response;
+                                                element.setAttribute('src', URL.createObjectURL(blob));
+
+                                                // Put the received blob into IndexedDB
+                                                const tx = db.transaction(storeName, 'readwrite')
+                                                const store = await tx.objectStore(storeName)
+
+                                                const value = await store.put(blob, key)
+                                                await tx.done;
+                                            }
+                                        }, false);
+                                        // Send XHR
+                                        xhr.send();
+                                    }
                                     element.removeAttribute('data-src');
                                 };
                             }
