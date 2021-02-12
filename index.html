@@ -62,23 +62,35 @@
     <script>
         //building page
         let inner = "";
-        for (let i = 604; i > 2; i = i - 2) {
+        let page = +window.location.hash.replace('#', '');
+        if (!(page > 0 && page <= 604))
+            page = 1;
+        const newpage = page % 2 == 1 ? page + 1 : page;
+        const index = 302 - newpage / 2;
+
+        for (let i = 604; i > 0; i = i - 2) {
+            const j = newpage == 604 ? -2 : 2;
+            const classes = i == newpage + j ? " active" : "";
             inner += `
-            <div class="carousel-item">
-                <div class="d-flex flex-row-reverse justify-content-center d-inline-block">
+            <div class="carousel-item${classes}">
+                <div class="d-flex flex-row-reverse justify-content-center ">
                     <img src="hafs/frame.jpg" class="img-page" data-src="hafs/${i}.png" alt="${i}">
                     <img src="hafs/frame.jpg" class="img-page" data-src="hafs/${i - 1}.png" alt="${i - 1}">
                 </div>
             </div>`;
         }
-        inner += `
-            <div class="carousel-item active">
-                <div class="d-flex flex-row-reverse justify-content-center">
-                    <img src="hafs/2.png" class="img-page" alt="2">
-                    <img src="hafs/1.png" class="img-page" alt="1">
-                </div>
-            </div>`;
         document.querySelector('.carousel-inner').innerHTML = inner;
+
+        const myCarousel = document.getElementById('myCarousel');
+        myCarousel.addEventListener('slide.bs.carousel', lazyload);
+        myCarousel.addEventListener('slide.bs.carousel', pageindex);
+        const carousel = new bootstrap.Carousel(myCarousel, { interval: 0 })
+
+
+
+        carousel.to(index);
+        console.log("index : ", index);
+        window.history.replaceState(index, "Page : " + page, "#" + page);
 
         //lazy load
         function lazyload(event) {
@@ -89,14 +101,41 @@
                 }
             });
         }
+
         //pageindex
         function pageindex(event) {
-            console.log(event);
+            let page = (302 - event.to) * 2;
+            if (event.direction == 'right') {
+                page--;
+                if (+window.location.hash.replace('#', '') < page || page == 1) {
+                    window.history.pushState(event.to, "Page : " + page, "#" + page);
+                }
+            }
+            else {
+                if (+window.location.hash.replace('#', '') > page || page == 604) {
+                    window.history.pushState(event.to, "Page : " + page, "#" + page);
+                }
+            }
+
+            console.log("direction", event.direction);
+            console.log("hash", +window.location.hash.replace('#', ''));
+            console.log("page", page)
+            console.log("last state : " + event.to);
         }
-        const myCarousel = document.getElementById('myCarousel');
-        myCarousel.addEventListener('slide.bs.carousel', lazyload);
-        myCarousel.addEventListener('slide.bs.carousel', pageindex);
-        const carousel = new bootstrap.Carousel(myCarousel, { interval: 0 })
+        window.addEventListener("popstate", function (event) {
+            if (event.state != null) {
+                carousel.to(event.state);
+            }
+            else {
+                let page = +window.location.hash.replace('#', '');
+                if (page >= 0 && page <= 604) {
+                    if (page % 2 == 1)
+                        page++;
+                    const index = 302 - page / 2;
+                    carousel.to(index);
+                }
+            }
+        })
         document.addEventListener('keyup', function (e) {
             if (e.which == 39) {
                 carousel.next();
