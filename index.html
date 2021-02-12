@@ -176,12 +176,10 @@
 
                                 const key = element.dataset.src;
 
-                                const item = await db.transaction(storeName).objectStore(storeName).get(key);
-                                console.log(item);
-                                if (item) {
-                                    element.setAttribute('src', URL.createObjectURL(item));
-                                }
-                                else {
+                                const request = db.transaction(storeName).objectStore(storeName).get(key);
+                                request.onerror = function (event) {
+                                    // Handle errors!
+                                    console.error(event);
                                     // Create XHR
                                     let xhr = new XMLHttpRequest(), blob;
 
@@ -206,10 +204,14 @@
                                     }, false);
                                     // Send XHR
                                     xhr.send();
-
-                                }
-
-                                element.removeAttribute('data-src');
+                                    element.removeAttribute('data-src');
+                                };
+                                request.onsuccess = function (event) {
+                                    console.log(event);
+                                    // Do something with the request.result!
+                                    element.setAttribute('src', URL.createObjectURL(request.result));
+                                    element.removeAttribute('data-src');
+                                };
                             }
                         });
                     }
