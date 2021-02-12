@@ -122,16 +122,22 @@
                 elem.msRequestFullscreen();
             }
             //show hide navBar
-            let cNavBar = document.getElementById('collapseNavBar');
-            cNavBar.className = cNavBar.className == "collapse" ? "collapse show" : "collapse";
+            document.getElementById('collapseNavBar').classList.toggle('show');
         });
     </script>
-    <script type="module">
-        import { openDB } from 'https://unpkg.com/idb?module';
-
+    <script>
+        //indexedDB
         if (window.location.protocol == "https:") {
             (async () => {
                 'use strict'
+
+                // In the following line, you should include the prefixes of implementations you want to test.
+                window.indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB;
+                // DON'T use "var indexedDB = ..." if you're not in a function.
+                // Moreover, you may need references to some window.IDB* objects:
+                window.IDBTransaction = window.IDBTransaction || window.webkitIDBTransaction || window.msIDBTransaction || { READ_WRITE: "readwrite" }; // This line should only be needed if it is needed to support the object's constants for older browsers
+                window.IDBKeyRange = window.IDBKeyRange || window.webkitIDBKeyRange || window.msIDBKeyRange;
+                // (Mozilla has never prefixed these objects, so we don't need window.mozIDB*)
 
                 if (!('indexedDB' in window)) {
                     console.warn('IndexedDB not supported')
@@ -143,59 +149,67 @@
                 const storeName = 'pages'
                 const version = 1 //versions start at 1
 
-                const db = await openDB(dbName, version, {
-                    upgrade(db, oldVersion, newVersion, transaction) {
-                        db.createObjectStore(storeName)
+                const request = indexedDB.open(dbName, version);
+
+                // This event is only implemented in recent browsers
+                request.onupgradeneeded = function (event) {
+                    // Save the IDBDatabase interface
+                    const db = event.target.result;
+
+                    // Create an objectStore for this database
+                    const objectStore = db.createObjectStore(storeName);
+                };
+
+                request.onsuccess = function (event) {
+                    const db = event.target.result;
+
+                    //lazy load
+                    let lazyloadandsave = async (event) => {
+                        event.relatedTarget.querySelectorAll('div > img').forEach(async (element) => {
+                            if (element.dataset.src) {
+
+                                const key = element.dataset.src;
+
+                                const item = await db.transaction(storeName).objectStore(storeName).get(key);
+
+                                if (item) {
+                                    element.setAttribute('src', URL.createObjectURL(item));
+                                }
+                                else {
+                                    // Create XHR
+                                    let xhr = new XMLHttpRequest(), blob;
+
+                                    xhr.open("GET", key, true);
+                                    // Set the responseType to blob
+                                    xhr.responseType = "blob";
+
+                                    xhr.addEventListener("load", async () => {
+                                        if (xhr.status === 200) {
+
+                                            // File as response
+                                            blob = xhr.response;
+                                            element.setAttribute('src', URL.createObjectURL(blob));
+
+                                            // Put the received blob into IndexedDB
+                                            const tx = db.transaction(storeName, 'readwrite')
+                                            const store = await tx.objectStore(storeName)
+
+                                            const value = await store.put(blob, key)
+                                            await tx.done;
+                                        }
+                                    }, false);
+                                    // Send XHR
+                                    xhr.send();
+
+                                }
+
+                                element.removeAttribute('data-src');
+                            }
+                        });
                     }
-                });
-
-
-                //lazy load
-                let lazyloadandsave = async (event) => {
-                    event.relatedTarget.querySelectorAll('div > img').forEach(async (element) => {
-                        if (element.dataset.src) {
-
-                            const key = element.dataset.src;
-
-                            const item = await db.transaction(storeName).objectStore(storeName).get(key);
-
-                            if (item) {
-                                element.setAttribute('src', URL.createObjectURL(item));
-                            }
-                            else {
-                                // Create XHR
-                                let xhr = new XMLHttpRequest(), blob;
-
-                                xhr.open("GET", key, true);
-                                // Set the responseType to blob
-                                xhr.responseType = "blob";
-
-                                xhr.addEventListener("load", async () => {
-                                    if (xhr.status === 200) {
-
-                                        // File as response
-                                        blob = xhr.response;
-                                        element.setAttribute('src', URL.createObjectURL(blob));
-
-                                        // Put the received blob into IndexedDB
-                                        const tx = db.transaction(storeName, 'readwrite')
-                                        const store = await tx.objectStore(storeName)
-
-                                        const value = await store.put(blob, key)
-                                        await tx.done;
-                                    }
-                                }, false);
-                                // Send XHR
-                                xhr.send();
-
-                            }
-
-                            element.removeAttribute('data-src');
-                        }
-                    });
-                }
-                document.getElementById('myCarousel').removeEventListener('slide.bs.carousel', lazyload);
-                document.getElementById('myCarousel').addEventListener('slide.bs.carousel', lazyloadandsave);
+                    document.getElementById('myCarousel').removeEventListener('slide.bs.carousel', lazyload);
+                    document.getElementById('myCarousel').addEventListener('slide.bs.carousel', lazyloadandsave);
+                };
             })();
 
         }
