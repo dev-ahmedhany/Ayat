@@ -65,10 +65,10 @@ window.addEventListener("popstate", function (event) {
 })
 document.addEventListener('keyup', function (e) {
     //inverted
-    if (e.which == 39) {
+    if (e.key == "ArrowLeft") {
         carousel.prev();
     }
-    else if (e.which == 37) {
+    else if (e.key == "ArrowRight") {
         carousel.next();
     }
 });
