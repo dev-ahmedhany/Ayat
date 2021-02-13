@@ -64,11 +64,12 @@ window.addEventListener("popstate", function (event) {
     }
 })
 document.addEventListener('keyup', function (e) {
+    //inverted
     if (e.which == 39) {
-        carousel.next();
+        carousel.prev();
     }
     else if (e.which == 37) {
-        carousel.prev();
+        carousel.next();
     }
 });
 //view size
