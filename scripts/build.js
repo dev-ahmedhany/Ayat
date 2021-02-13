@@ -190,11 +190,16 @@ if (window.location.protocol == "https:") {
             }
             document.getElementById('myCarousel').removeEventListener('slide.bs.carousel', lazyload);
             document.getElementById('myCarousel').addEventListener('slide.bs.carousel', lazyloadandsave);
+
+            //go to page
+            carousel.to(index);
+            window.history.replaceState(index, "Page : " + page, "#" + page);
         };
     })();
 
 }
-
-//go to page
-//carousel.to(index);
-window.history.replaceState(index, "Page : " + page, "#" + page);
+else {
+    //go to page
+    carousel.to(index);
+    window.history.replaceState(index, "Page : " + page, "#" + page);
+}
