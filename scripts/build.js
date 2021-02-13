@@ -196,5 +196,5 @@ if (window.location.protocol == "https:") {
 }
 
 //go to page
-carousel.to(index);
+//carousel.to(index);
 window.history.replaceState(index, "Page : " + page, "#" + page);
